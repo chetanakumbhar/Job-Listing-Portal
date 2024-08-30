@@ -1,0 +1,13 @@
+/* src/App.css */
+body {
+  background: url('https://assets.entrepreneur.com/content/3x2/2000/1706650260-job-search-sites-save-time-0124-s2296920153.jpg') no-repeat center center fixed;
+  background-size: cover;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background for content */
+  padding: 20px;
+  border-radius: 8px;
+}
