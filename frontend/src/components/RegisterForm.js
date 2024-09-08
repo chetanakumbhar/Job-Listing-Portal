@@ -17,7 +17,6 @@ function RegisterForm() {
     axios.post('http://localhost:5000/api/register', { name, email, password })
       .then(response => {
         alert('Registration successful!');
-        // Handle successful registration (e.g., redirect to login)
       })
       .catch(error => {
         console.error('Registration error:', error);
@@ -33,14 +32,7 @@ function RegisterForm() {
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="name">Name</label>
-              <input
-                type="text"
-                className="form-control"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+              <input type="text" className="form-control" id="name" value={name} onChange={(e) => setName(e.target.value)}  required/>
             </div>
             <div className="form-group mt-3">
               <label htmlFor="email">Email address</label>
