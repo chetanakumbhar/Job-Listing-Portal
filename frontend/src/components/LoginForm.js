@@ -1,56 +1,66 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
-    // Replace with your backend URL
-    axios.post('http://localhost:5000/api/login', { email, password })
+    axios.post('http://localhost:5000/api/auth/login', { email, password })
       .then(response => {
-        alert('Login successful!');
-        // Handle successful login (e.g., redirect, store token, etc.)
+        if (response.data.token) {
+          // Store the JWT token and role in localStorage
+          localStorage.setItem('token', response.data.token); // Store the token
+          localStorage.setItem('role', response.data.role);   // Store the user's role
+
+          // Redirect based on the role
+          if (response.data.role === 'admin') {
+            navigate('/admin');
+          } else {
+            navigate('/jobs');
+          }
+        } else {
+          setError('Invalid email or password');
+        }
       })
       .catch(error => {
-        console.error('Login error:', error);
-        alert('Login failed. Please try again.');
+        console.error('Login error:', error.response ? error.response.data.message : error.message);
+        setError('An error occurred during login.');
       });
   };
+  
 
   return (
     <div className="container mt-5">
-      <h1 className="mb-4">Login</h1>
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="email">Email address</label>
-              <input
-                type="email"
-                className="form-control"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group mt-3">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" className="btn btn-primary mt-4">Login</button>
-          </form>
+      <h2>Login</h2>
+      {error && <p className="text-danger">{error}</p>}
+      <form onSubmit={handleLogin}>
+        <div className="form-group">
+          <label>Email</label>
+          <input
+            type="email"
+            className="form-control"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
         </div>
-      </div>
+        <div className="form-group">
+          <label>Password</label>
+          <input
+            type="password"
+            className="form-control"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit" className="btn btn-primary">Login</button>
+      </form>
     </div>
   );
 }

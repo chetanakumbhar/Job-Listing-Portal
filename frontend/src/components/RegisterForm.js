@@ -6,21 +6,35 @@ function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');  // Added to handle error messages
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Check if passwords match
     if (password !== confirmPassword) {
-      alert('Passwords do not match!');
+      setError('Passwords do not match!');
       return;
     }
-    // Replace with your backend URL
-    axios.post('http://localhost:5000/api/register', { name, email, password })
+
+    // Clear previous error
+    setError('');
+
+    // Make API request
+    axios.post('http://localhost:5000/api/auth/register', { name, email, password })
       .then(response => {
-        alert('Registration successful!');
+        // Check if registration was successful
+        if (response.data.token) {
+          alert('Registration successful!');
+          // You might want to redirect or perform additional actions here
+        } else {
+          setError('Registration failed. Please try again.');
+        }
       })
       .catch(error => {
         console.error('Registration error:', error);
-        alert('Registration failed. Please try again.');
+        // Show error message from backend if available
+        setError(error.response?.data?.message || 'Registration failed. Please try again.');
       });
   };
 
@@ -30,9 +44,17 @@ function RegisterForm() {
       <div className="row justify-content-center">
         <div className="col-md-6">
           <form onSubmit={handleSubmit}>
+            {error && <p className="text-danger">{error}</p>}  {/* Display error messages */}
             <div className="form-group">
               <label htmlFor="name">Name</label>
-              <input type="text" className="form-control" id="name" value={name} onChange={(e) => setName(e.target.value)}  required/>
+              <input
+                type="text"
+                className="form-control"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
             </div>
             <div className="form-group mt-3">
               <label htmlFor="email">Email address</label>

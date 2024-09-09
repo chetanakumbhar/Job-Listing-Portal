@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function AddJob() {
   const [title, setTitle] = useState('');
@@ -7,25 +8,51 @@ function AddJob() {
   const [company, setCompany] = useState('');
   const [location, setLocation] = useState('');
   const [salary, setSalary] = useState('');
+  const navigate = useNavigate();
+
+  // Check for admin role on component mount
+  useEffect(() => {
+    const role = localStorage.getItem('role');
+    if (role !== 'admin') {
+      navigate('/jobs');  // Redirect to the job listings page if the user is not an admin
+    }
+  }, [navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:5000/api/jobs', {
-      title,
-      description,
-      company,
-      location,
-      salary
-    })
-    .then(response => {
-      alert('Job added successfully!');
-      setTitle('');
-      setDescription('');
-      setCompany('');
-      setLocation('');
-      setSalary('');
-    })
-    .catch(error => console.error('Error adding job:', error));
+
+    const token = localStorage.getItem('token'); // Retrieve the token saved during login
+
+    if (!token) {
+      alert("You must be logged in to add a job.");
+      return;
+    }
+
+    axios.post('http://localhost:5000/api/add-job', {
+        title,
+        description,
+        company,
+        location,
+        salary
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}` // Attach token in the Authorization header
+        }
+      })
+      .then(response => {
+        alert('Job added successfully!');
+        // Clear form fields
+        setTitle('');
+        setDescription('');
+        setCompany('');
+        setLocation('');
+        setSalary('');
+      })
+      .catch(error => {
+        console.error('Error adding job:', error);
+        const errorMessage = error.response?.data?.message || 'Error adding job. Please ensure you have the correct permissions.';
+        alert(errorMessage);
+      });
   };
 
   return (

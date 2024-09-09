@@ -1,31 +1,37 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
+const User = require('../models/User'); // Adjust the path as needed
+const bcrypt = require('bcrypt');
 
-const secretKey = process.env.JWT_SECRET; // Load from environment
+// Set secret key from environment or use a default for local dev
+const secretKey = process.env.JWT_SECRET || 'yourDefaultSecretKey';
 
-router.post('/', (req, res) => {
+// login route
+app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
 
-  // In a real-world app, you'd validate the email/password here
-  if (email === 'admin@example.com' && password === 'password') {
-    const token = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
-    res.json({ token });
-  } else {
-    res.status(401).json({ message: 'Invalid credentials' });
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user || password !== user.password) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Create JWT token
+    const token = jwt.sign({ userId: user._id }, 'secret_key'); // Use a secret key
+
+    // Return token and user info
+    res.json({
+      token,
+      user: {
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Middleware to verify token
-const verifyToken = (req, res, next) => {
-  const token = req.headers['authorization'];
-  if (!token) return res.status(403).send('Access denied');
-
-  jwt.verify(token, secretKey, (err, user) => {
-    if (err) return res.status(401).send('Invalid token');
-    req.user = user;
-    next();
-  });
-};
-
-module.exports = { router, verifyToken };
+module.exports = router;
