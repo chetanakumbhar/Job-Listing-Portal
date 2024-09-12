@@ -16,7 +16,8 @@ function LoginForm() {
           // Store the JWT token and role in localStorage
           localStorage.setItem('token', response.data.token); // Store the token
           localStorage.setItem('role', response.data.role);   // Store the user's role
-
+          console.log(response.data.token);
+          
           // Redirect based on the role
           if (response.data.role === 'admin') {
             navigate('/admin');

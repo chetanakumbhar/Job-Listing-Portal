@@ -4,6 +4,8 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import JobList from './components/JobList';
 import AddJob from './components/AddJob';
+import JobDetails from './components/JobDetails';
+import JobEditForm from './components/JobEditForm';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'; // Import the CSS file if needed
 import axios from 'axios';
@@ -71,6 +73,8 @@ function App() {
         <div className="container mt-4">
           <Routes>
             <Route path="/" element={<JobList />} />
+            <Route path="/jobs/:id" element={<JobDetails />} />
+            <Route path="/jobs/edit/:id" element={<JobEditForm />} />
             <Route path="/add" element={<AddJob />} />
             <Route path="/login" element={<LoginForm />} />
             <Route path="/register" element={<RegisterForm />} />

@@ -40,9 +40,9 @@ const verifyAdmin = (req, res, next) => {
 
 // Add a job route
 router.post('/add-job', verifyToken, verifyAdmin, async (req, res) => {
-  const { title,company, location, salary, description } = req.body;
+  const { title,company, location, salary, description,responsibilities,qualifications } = req.body;
 
-  if (!title || !company || !location || !salary || !description) {
+  if (!title || !company || !location || !salary || !description || !responsibilities || !qualifications) {
     return res.status(400).json({ message: 'Title and description are required' });
   }
 
@@ -54,7 +54,7 @@ router.post('/add-job', verifyToken, verifyAdmin, async (req, res) => {
     }
 
     // Create and save the new job
-    const job = new Job({ title,company,location,salary,description });
+    const job = new Job({ title,company,location,salary,description,responsibilities,qualifications });
     const savedJob = await job.save();
 
     res.status(201).json({ message: 'Job added successfully', job: savedJob });
@@ -69,6 +69,29 @@ router.get('/jobs', async (req, res) => {
     res.json(jobs);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+// Get a single job
+router.get('/jobs/:id', async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ message: 'Job not found' });
+    res.json(job);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update a job
+router.put('/jobs/:id', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const updatedJob = await Job.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updatedJob) return res.status(404).json({ message: 'Job not found' });
+    res.json(updatedJob);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update job' });
   }
 });
 
